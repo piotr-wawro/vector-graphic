@@ -1,0 +1,4 @@
+#canvas {
+    width: calc(100% - 252px * 1.1);
+    height: 100%;
+}

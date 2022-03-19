@@ -1,5 +1,9 @@
-import { useEffect, useRef } from 'react';
-import './Canvas.css';
+import { useEffect, useRef, useState } from 'react';
+
+import { useAppSelector } from 'app/hooks';
+import { selectBrushSize, selectColor } from 'components/Toolbox/toolboxSlice';
+
+import styles from './Canvas.module.css';
 
 type Point2D = {
     x: number|null;
@@ -7,8 +11,11 @@ type Point2D = {
 }
 
 const Canvas = () => {
-    let canvas = useRef<HTMLCanvasElement|null>(null)
-
+    const canvas = useRef<HTMLCanvasElement | null>(null)
+    
+    const color = useAppSelector(selectColor);
+    const brushSize = useAppSelector(selectBrushSize);
+    
     let mousePointStart: Point2D = {x: null, y: null}
     let mousePointEnd: Point2D = {x: null, y: null}
     let canvasSize: Point2D = {x: null, y: null}
@@ -21,8 +28,8 @@ const Canvas = () => {
             y: canvas.current!.clientHeight,
         }
 
-        let context = canvas.current?.getContext('2d')
-        context?.save();
+        const context = canvas.current!.getContext('2d')
+        context!.lineCap = 'round'
 
         const handleMouseDown = (event: MouseEvent) => {
             if(event.buttons == 1) {
@@ -48,10 +55,10 @@ const Canvas = () => {
                     y: event.offsetY,
                 }
 
-                context?.beginPath();
-                context?.moveTo(mousePointStart.x!, mousePointStart.y!);
-                context?.lineTo(mousePointEnd.x!, mousePointEnd.y!);
-                context?.stroke();
+                context!.beginPath();
+                context!.moveTo(mousePointStart.x!, mousePointStart.y!);
+                context!.lineTo(mousePointEnd.x!, mousePointEnd.y!);
+                context!.stroke();
             }
         }
 
@@ -62,7 +69,7 @@ const Canvas = () => {
                 y: canvas.current!.clientHeight,
             }
 
-            context?.scale(
+            context!.scale(
                 oldCanvasSize.x!/canvasSize.x!,
                 oldCanvasSize.y!/canvasSize.y!,
             )
@@ -81,8 +88,18 @@ const Canvas = () => {
         }
     }, [])
 
+    useEffect(() => {
+        const context = canvas.current!.getContext('2d')
+        context!.strokeStyle = color
+    }, [color])
+
+    useEffect(() => {
+        const context = canvas.current!.getContext('2d')
+        context!.lineWidth = brushSize
+    })
+
     return (
-        <canvas id='canvas' ref={canvas}/>
+        <canvas id={styles.canvas} ref={canvas}/>
     )
 }
 

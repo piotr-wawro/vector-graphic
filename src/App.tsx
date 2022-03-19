@@ -1,10 +1,12 @@
 import Canvas from 'components/Canvas/Canvas';
+import Toolbox from 'components/Toolbox/Toolbox';
 import './App.css';
 
 function App() {
   return (
     <div className='container'>
-      <Canvas />
+        <Toolbox />
+        <Canvas />
     </div>
   );
 }
