@@ -14,7 +14,7 @@ export class Line implements Drawable {
         this.end = end
     }
 
-    draw(viewport: Viewport ) {
+    draw(viewport: Viewport) {
         const context = viewport.canvas.getContext("2d")!
 
         context.beginPath();
@@ -26,6 +26,32 @@ export class Line implements Drawable {
             this.end.x! + viewport.x,
             this.end.y! + viewport.y
         );
+        context.stroke();
+
+        this.drawPin(viewport)
+    }
+
+    drawPin(viewport: Viewport) {
+        const context = viewport.canvas.getContext("2d")!
+
+        context.beginPath();
+        context.arc(
+            this.start.x! + viewport.x,
+            this.start.y! + viewport.y,
+            5,
+            0,
+            2*Math.PI*5
+        )
+        context.stroke();
+        
+        context.beginPath();
+        context.arc(
+            this.end.x! + viewport.x,
+            this.end.y! + viewport.y,
+            5,
+            0,
+            2*Math.PI*5
+        )
         context.stroke();
     }
 }
