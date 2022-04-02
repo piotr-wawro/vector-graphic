@@ -3,6 +3,7 @@ import { RootState } from 'app/store';
 
 export enum Tool {
     line,
+    hand,
 }
 
 export interface ToolboxState {

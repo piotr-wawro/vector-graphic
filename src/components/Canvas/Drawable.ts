@@ -5,16 +5,68 @@ export interface Drawable {
     draw(viewport: Viewport): void
 }
 
-export class Line implements Drawable {
+export interface Editable {
+    pinSize(viewport: Viewport): number
+    drawPin(viewport: Viewport): void
+    isMouseOnPin(viewport: Viewport, event: MouseEvent): boolean
+    edit(viewport: Viewport, event: MouseEvent): void
+}
+
+export class Line implements Drawable, Editable {
     start: Point2D;
     end: Point2D;
+    color: string;
+    lineWidth: number;
 
-    constructor(start: Point2D, end: Point2D) {
+    pointRef: Point2D | null = null;
+
+    constructor(start: Point2D, end: Point2D, color: string, lineWidth: number) {
         this.start = start
         this.end = end
+        this.color = color
+        this.lineWidth = lineWidth
+    }
+
+    pinSize(viewport: Viewport): number {
+        return (5 + this.lineWidth/2) / viewport.zoom
+    }
+
+    isMouseOnPin(viewport: Viewport, event: MouseEvent): boolean {
+        const mousePosition = viewport.getMousePosition(event)
+
+        if(Math.pow(mousePosition.x! - this.start.x!, 2) + Math.pow(mousePosition.y! - this.start.y!, 2) < Math.pow(this.pinSize(viewport), 2)) {
+            this.pointRef = this.start
+            return true
+        }
+        if(Math.pow(mousePosition.x! - this.end.x!, 2) + Math.pow(mousePosition.y! - this.end.y!, 2) < Math.pow(this.pinSize(viewport), 2)) {
+            this.pointRef = this.end
+            return true
+        }
+
+        return false
+    }
+
+    edit(viewport: Viewport, event: MouseEvent): void {
+        const contextTransform = viewport.canvas.getContext("2d")!.getTransform();
+
+        this.pointRef!.x! += event.movementX / contextTransform.a
+        this.pointRef!.y! += event.movementY / contextTransform.d
     }
 
     draw(viewport: Viewport) {
+        const context = viewport.canvas.getContext("2d")!
+
+        context.save()
+        context!.strokeStyle = this.color;
+        context!.lineWidth = this.lineWidth/viewport.zoom;
+
+        this.drawLine(viewport)
+        this.drawPin(viewport)
+
+        context.restore()
+    }
+
+    drawLine(viewport: Viewport) {
         const context = viewport.canvas.getContext("2d")!
 
         context.beginPath();
@@ -27,18 +79,19 @@ export class Line implements Drawable {
             this.end.y! + viewport.y
         );
         context.stroke();
-
-        this.drawPin(viewport)
     }
 
     drawPin(viewport: Viewport) {
         const context = viewport.canvas.getContext("2d")!
 
+        context.save()
+        context!.lineWidth = 1/viewport.zoom;
+
         context.beginPath();
         context.arc(
             this.start.x! + viewport.x,
             this.start.y! + viewport.y,
-            5,
+            this.pinSize(viewport),
             0,
             2*Math.PI*5
         )
@@ -48,10 +101,12 @@ export class Line implements Drawable {
         context.arc(
             this.end.x! + viewport.x,
             this.end.y! + viewport.y,
-            5,
+            this.pinSize(viewport),
             0,
             2*Math.PI*5
         )
         context.stroke();
+
+        context.restore()
     }
 }

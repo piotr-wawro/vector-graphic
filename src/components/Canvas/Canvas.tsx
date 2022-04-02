@@ -6,14 +6,15 @@ import { selectBrushSize, selectColor, selectTool, Tool } from 'components/Toolb
 import styles from './Canvas.module.css';
 import Viewport from './Viewprot';
 import Point2D from './Point2D';
-import { Drawable, Line } from './Drawable';
+import { Drawable, Editable, Line } from './Drawable';
 
 interface CanvasData {
     mousePointStart: Point2D;
     mousePointEnd: Point2D;
     newObject: Drawable | null;
+    refToEditedObject: Editable | null;
     viewport: Viewport | null;
-    drawableElements: Array<Drawable>;
+    drawableElements: Array<Editable | Drawable>;
 }
 
 const Canvas = () => {
@@ -28,6 +29,7 @@ const Canvas = () => {
         mousePointStart: {x: null, y: null},
         mousePointEnd: {x: null, y: null},
         newObject: null,
+        refToEditedObject: null,
         viewport: null,
         drawableElements: [],
     })
@@ -37,6 +39,21 @@ const Canvas = () => {
         requestRef.current = requestAnimationFrame(mainLoop);
     }
 
+    let isDrawable = (object: Drawable | Editable): object is Drawable => {
+        if((object as Drawable).draw === undefined) return false
+
+        return true
+    }
+
+    let isEditable = (object: Drawable | Editable): object is Editable => {
+        if((object as Editable).drawPin      === undefined) return false
+        if((object as Editable).edit         === undefined) return false
+        if((object as Editable).isMouseOnPin === undefined) return false
+        if((object as Editable).pinSize      === undefined) return false
+
+        return true
+    }
+
     let updateCanvas = () => {
         const context = canvas.current!.getContext("2d");
         const contextTransform = context!.getTransform();
@@ -44,7 +61,9 @@ const Canvas = () => {
         context!.clearRect(0, 0, canvas.current!.width / contextTransform.a, canvas.current!.height / contextTransform.d);
 
         canvasData.drawableElements.forEach((e) => {
-            e.draw(canvasData.viewport!)
+            if(isDrawable(e)) {
+                e.draw(canvasData.viewport!)
+            }
         });
         canvasData.newObject?.draw(canvasData.viewport!)
     }
@@ -61,32 +80,27 @@ const Canvas = () => {
     useEffect(() => {
         const handleMouseDown = (event: MouseEvent) => {
             if(event.button == 0) {
-                canvasData.mousePointStart = canvasData.viewport!.getMousePosition(event)
-                canvasData.mousePointEnd = canvasData.viewport!.getMousePosition(event)
-
                 if(tool == Tool.line) {
-                    canvasData.newObject = new Line(canvasData.mousePointStart, canvasData.mousePointEnd)
+                    canvasData.mousePointStart = canvasData.viewport!.getMousePosition(event)
+                    canvasData.mousePointEnd = canvasData.viewport!.getMousePosition(event)
+                    canvasData.newObject = new Line(canvasData.mousePointStart, canvasData.mousePointEnd, color, brushSize)
+                }
+                else if(tool == Tool.hand) {
+                    for(let e of canvasData.drawableElements) {
+                        if(isEditable(e)) {
+                            if(e.isMouseOnPin(canvasData.viewport!, event)) {
+                                canvasData.refToEditedObject = e
+                                break
+                            }
+                        }
+                    };
                 }
             }
         }
 
         canvas.current!.addEventListener('mousedown', handleMouseDown)
         return () => {canvas.current!.removeEventListener('mousedown', handleMouseDown)}
-    }, [tool])
-
-    useEffect(() => {
-        const handleMouseUp = (event: MouseEvent) => {
-            if(event.button == 0) {
-                canvasData.mousePointStart = {x: null, y: null}
-                canvasData.mousePointEnd = {x: null, y: null}
-
-                canvasData.drawableElements.push(canvasData.newObject!)
-            }
-        }
-
-        canvas.current!.addEventListener('mouseup', handleMouseUp)
-        return () => {canvas.current!.removeEventListener('mouseup', handleMouseUp)}
-    }, [])
+    }, [tool, color, brushSize])
 
     useEffect(() => {
         const handleMouseMove = (event: MouseEvent) => {
@@ -94,7 +108,10 @@ const Canvas = () => {
                 canvasData.mousePointEnd = canvasData.viewport!.getMousePosition(event)
 
                 if(tool == Tool.line) {
-                    canvasData.newObject = new Line(canvasData.mousePointStart, canvasData.mousePointEnd)
+                    canvasData.newObject = new Line(canvasData.mousePointStart, canvasData.mousePointEnd, color, brushSize)
+                }
+                if(tool == Tool.hand) {
+                    canvasData.refToEditedObject?.edit(canvasData.viewport!, event)
                 }
             }
             if(event.buttons == 2) {
@@ -104,14 +121,34 @@ const Canvas = () => {
 
         canvas.current!.addEventListener('mousemove', handleMouseMove)
         return () => {canvas.current!.removeEventListener('mousemove', handleMouseMove)}
-    }, [])
+    }, [tool, color, brushSize])
+
+    useEffect(() => {
+        const handleMouseUp = (event: MouseEvent) => {
+            if(event.button == 0) {
+                canvasData.mousePointStart = {x: null, y: null}
+                canvasData.mousePointEnd = {x: null, y: null}
+
+                if(tool == Tool.line) {
+                    canvasData.drawableElements.push(canvasData.newObject!)
+                }
+                if(tool == Tool.hand) {
+                    canvasData.refToEditedObject = null
+                }
+            }
+        }
+
+        canvas.current!.addEventListener('mouseup', handleMouseUp)
+        return () => {canvas.current!.removeEventListener('mouseup', handleMouseUp)}
+    }, [tool])
 
     useEffect(() => {
         const handleResize = () => {
             canvas.current!.width = canvas.current!.clientWidth;
             canvas.current!.height = canvas.current!.clientHeight;
 
-            canvas.current!.getContext('2d')!.scale(canvasData.viewport!.zoom, canvasData.viewport!.zoom);
+            const context = canvas.current!.getContext('2d')
+            context!.scale(canvasData.viewport!.zoom, canvasData.viewport!.zoom);
         }
 
         window.addEventListener('resize', handleResize)
@@ -140,16 +177,6 @@ const Canvas = () => {
         requestRef.current = requestAnimationFrame(mainLoop);
         return () => cancelAnimationFrame(requestRef.current!);
     }, [])
-
-    useEffect(() => {
-        const context = canvas.current!.getContext('2d')
-        context!.strokeStyle = color
-    }, [color])
-
-    useEffect(() => {
-        const context = canvas.current!.getContext('2d')
-        context!.lineWidth = brushSize
-    }, [brushSize])
 
     return (
         <canvas id={styles.canvas} ref={canvas}/>
