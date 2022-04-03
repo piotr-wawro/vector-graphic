@@ -1,0 +1,32 @@
+.container {
+    width: 100%;
+    height: fit-content;
+}
+
+.inputContainer {
+    width: 100%;
+    height: fit-content;
+
+    display: flex;
+    flex-direction: row;
+}
+
+.input {
+    min-width: 0;
+    margin-left: 0.5rem;
+}
+
+.label {
+    color: gainsboro;
+}
+
+.label:not(:first-child) {
+    margin-left: 0.5rem;
+}
+
+.convertButton {
+    display: flex;
+    justify-content: center;
+
+    padding: 1rem 0;
+}

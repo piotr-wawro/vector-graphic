@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 import { useAppSelector } from 'app/hooks';
-import { selectBrushSize, selectColor, selectTool, Tool } from 'components/Toolbox/toolboxSlice';
+import { selectBrushSize, selectColor, selectTool, Tool } from 'components/toolbox/toolboxSlice';
 
 import styles from './Canvas.module.css';
 import Viewport from './Viewprot';

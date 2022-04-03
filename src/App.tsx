@@ -1,5 +1,5 @@
-import Canvas from 'components/Canvas/Canvas';
-import Toolbox from 'components/Toolbox/Toolbox';
+import Canvas from 'components/canvas/Canvas';
+import Toolbox from 'components/toolbox/Toolbox';
 import './App.css';
 
 function App() {

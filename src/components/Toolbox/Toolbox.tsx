@@ -16,6 +16,7 @@ import styles from './Toolbox.module.css'
 
 import line from 'icons/line.png'
 import hand from 'icons/hand.png'
+import RGBtoHSV from 'components/colorConversion/RGBtoHSV';
 
 const Toolbox = () => {
     const dispatch = useAppDispatch();
@@ -58,7 +59,7 @@ const Toolbox = () => {
                 onChange={handleOnBrushSizeChange}
             />
 
-            <Header text="Tools" />
+            <Header text='Tools' />
             <div className={styles.tools}>
                 {Object.entries(toolsIcons).map(([key, value]) => (
                     <button
@@ -70,6 +71,9 @@ const Toolbox = () => {
                     </button>
                 ))}
             </div>
+
+            <Header text='Color conversion' />
+            <RGBtoHSV/>
         </div>
     )
 }
