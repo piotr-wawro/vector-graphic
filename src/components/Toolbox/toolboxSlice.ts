@@ -7,6 +7,7 @@ export enum Tool {
     rectangle,
     ellipse,
     path,
+    plygon,
 }
 
 export interface ToolboxState {

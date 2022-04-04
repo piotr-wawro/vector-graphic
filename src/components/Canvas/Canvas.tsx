@@ -11,6 +11,7 @@ import Line from 'components/canvas-shapes/Line';
 import Rectangle from 'components/canvas-shapes/Rectangle';
 import Ellipse from 'components/canvas-shapes/Ellipse';
 import Path from 'components/canvas-shapes/Path';
+import Polygon from 'components/canvas-shapes/Polygon';
 
 interface CanvasData {
     newObject: Drawable & Editable | null;
@@ -107,6 +108,9 @@ const Canvas = () => {
                 }
                 else if(tool === Tool.path) {
                     canvasData.newObject = new Path(mousePositionStart, mousePositionEnd, color, brushSize)
+                }
+                else if(tool === Tool.plygon) {
+                    canvasData.newObject = new Polygon(mousePositionStart, mousePositionEnd, color, brushSize)
                 }
             }
             if(event.buttons === 2) {

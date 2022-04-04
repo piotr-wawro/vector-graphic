@@ -34,6 +34,7 @@ const Toolbox = () => {
         [Tool.rectangle]: rectangle,
         [Tool.ellipse]: ellipse,
         [Tool.path]: path,
+        [Tool.plygon]: '',
     }
 
     const handleOnChangeComplete = (newColor: ColorResult) => {
