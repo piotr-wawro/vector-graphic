@@ -1,4 +1,4 @@
-import Point2D from "./Point2D";
+import Point2D from "../canvas-shapes/Point2D";
 
 class Viewport {
     private _x: number = 0;

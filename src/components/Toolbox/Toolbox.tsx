@@ -17,7 +17,7 @@ import styles from './Toolbox.module.css'
 import line from 'icons/line.png'
 import hand from 'icons/hand.png'
 import rectangle from 'icons/rectangle.png'
-import RGBtoHSV from 'components/colorConversion/RGBtoHSV';
+import RGBtoHSV from 'components/color-conversion/RGBtoHSV';
 
 const Toolbox = () => {
     const dispatch = useAppDispatch();

@@ -5,8 +5,11 @@ import { selectBrushSize, selectColor, selectTool, Tool } from 'components/toolb
 
 import styles from './Canvas.module.css';
 import Viewport from './Viewprot';
-import Point2D from './Point2D';
-import { Drawable, Editable, Line, Rectangle } from './Drawable';
+import Point2D from '../canvas-shapes/Point2D';
+import Editable from 'components/canvas-shapes/Editable';
+import Drawable from 'components/canvas-shapes/Drawable';
+import Line from 'components/canvas-shapes/Line';
+import Rectangle from 'components/canvas-shapes/Rectangle';
 
 interface CanvasData {
     mousePointStart: Point2D;
