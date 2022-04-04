@@ -45,6 +45,10 @@ export default class Ellipse implements Drawable, Editable {
         this.pointRef!.y! += event.movementY / contextTransform.d
     }
 
+    addPoint(point: Point2D) {
+        return false
+    }
+
     draw(viewport: Viewport) {
         const context = viewport.canvas.getContext("2d")!
 

@@ -6,6 +6,7 @@ export enum Tool {
     hand,
     rectangle,
     ellipse,
+    path,
 }
 
 export interface ToolboxState {

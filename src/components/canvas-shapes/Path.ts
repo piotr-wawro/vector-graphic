@@ -3,17 +3,15 @@ import Drawable from "./Drawable";
 import Editable from "./Editable";
 import Point2D from "./Point2D";
 
-export default class Line implements Drawable, Editable {
-    start: Point2D;
-    end: Point2D;
+export default class Path implements Drawable, Editable {
+    points: Array<Point2D>;
     color: string;
     lineWidth: number;
 
     pointRef: Point2D | null = null;
 
     constructor(start: Point2D, end: Point2D, color: string, lineWidth: number) {
-        this.start = start
-        this.end = end
+        this.points = [start, end]
         this.color = color
         this.lineWidth = lineWidth
         this.pointRef = end;
@@ -26,13 +24,11 @@ export default class Line implements Drawable, Editable {
     isMouseOnPin(viewport: Viewport, event: MouseEvent): boolean {
         const mousePosition = viewport.getMousePosition(event)
 
-        if(Math.pow(mousePosition.x! - this.start.x!, 2) + Math.pow(mousePosition.y! - this.start.y!, 2) < Math.pow(this.pinSize(viewport), 2)) {
-            this.pointRef = this.start
-            return true
-        }
-        if(Math.pow(mousePosition.x! - this.end.x!, 2) + Math.pow(mousePosition.y! - this.end.y!, 2) < Math.pow(this.pinSize(viewport), 2)) {
-            this.pointRef = this.end
-            return true
+        for(let point of this.points) {
+            if(Math.pow(mousePosition.x! - point.x!, 2) + Math.pow(mousePosition.y! - point.y!, 2) < Math.pow(this.pinSize(viewport), 2)) {
+                this.pointRef = point
+                return true
+            }
         }
 
         return false
@@ -45,8 +41,17 @@ export default class Line implements Drawable, Editable {
         this.pointRef!.y! += event.movementY / contextTransform.d
     }
 
-    addPoint(point: Point2D) {
-        return false
+    addPoint(point: Point2D): boolean {
+        if(this.points[this.points.length - 2].x === point.x && this.points[this.points.length - 2].y === point.y) {
+            this.points.pop()
+            return false
+        }
+        else {
+            this.points.push(point)
+            this.pointRef = point
+
+            return true
+        }
     }
 
     draw(viewport: Viewport) {
@@ -67,13 +72,15 @@ export default class Line implements Drawable, Editable {
 
         context.beginPath();
         context.moveTo(
-            this.start.x! + viewport.x,
-            this.start.y! + viewport.y
+            this.points[0].x! + viewport.x,
+            this.points[0].y! + viewport.y
         );
-        context.lineTo(
-            this.end.x! + viewport.x,
-            this.end.y! + viewport.y
-        );
+        for(let point of this.points.slice(1)) {
+            context.lineTo(
+                point.x! + viewport.x,
+                point.y! + viewport.y
+            );
+        }
         context.stroke();
     }
 
@@ -83,25 +90,17 @@ export default class Line implements Drawable, Editable {
         context.save()
         context!.lineWidth = 1/viewport.zoom;
 
-        context.beginPath();
-        context.arc(
-            this.start.x! + viewport.x,
-            this.start.y! + viewport.y,
-            this.pinSize(viewport),
-            0,
-            2*Math.PI*5
-        )
-        context.stroke();
-        
-        context.beginPath();
-        context.arc(
-            this.end.x! + viewport.x,
-            this.end.y! + viewport.y,
-            this.pinSize(viewport),
-            0,
-            2*Math.PI*5
-        )
-        context.stroke();
+        for(let point of this.points) {
+            context.beginPath();
+            context.arc(
+                point.x! + viewport.x,
+                point.y! + viewport.y,
+                this.pinSize(viewport),
+                0,
+                2*Math.PI*5
+            )
+            context.stroke();
+        }
 
         context.restore()
     }

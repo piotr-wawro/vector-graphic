@@ -10,6 +10,7 @@ import Drawable from 'components/canvas-shapes/Drawable';
 import Line from 'components/canvas-shapes/Line';
 import Rectangle from 'components/canvas-shapes/Rectangle';
 import Ellipse from 'components/canvas-shapes/Ellipse';
+import Path from 'components/canvas-shapes/Path';
 
 interface CanvasData {
     newObject: Drawable & Editable | null;
@@ -80,7 +81,14 @@ const Canvas = () => {
             let mousePositionEnd = canvasData.viewport!.getMousePosition(event)
 
             if(event.button === 0) {
-                if(tool === Tool.hand) {
+                if(canvasData.newObject !== null) {
+                    const continueDrawing = canvasData.newObject.addPoint(mousePositionStart)
+                    if(continueDrawing === false) {
+                        canvasData.drawableElements.push(canvasData.newObject)
+                        canvasData.newObject = null
+                    }
+                }
+                else if(tool === Tool.hand) {
                     for(let e of canvasData.drawableElements) {
                         if(e.isMouseOnPin(canvasData.viewport!, event)) {
                             canvasData.newObject = e
@@ -97,6 +105,12 @@ const Canvas = () => {
                 else if(tool === Tool.ellipse) {
                     canvasData.newObject = new Ellipse(mousePositionStart, mousePositionEnd, color, brushSize)
                 }
+                else if(tool === Tool.path) {
+                    canvasData.newObject = new Path(mousePositionStart, mousePositionEnd, color, brushSize)
+                }
+            }
+            if(event.buttons === 2) {
+                canvasData.newObject = null
             }
         }
 
@@ -106,10 +120,15 @@ const Canvas = () => {
 
     useEffect(() => {
         const handleMouseMove = (event: MouseEvent) => {
-            if(event.buttons === 1) {
+            if(tool === Tool.hand) {
+                if(event.buttons === 1) {
+                    canvasData.newObject?.edit(canvasData.viewport!, event)
+                }
+            }
+            else {
                 canvasData.newObject?.edit(canvasData.viewport!, event)
             }
-            if(event.buttons === 2) {
+            if(event.buttons === 4) {
                 canvasData.viewport!.dragViewport(event)
             }
         }
@@ -120,11 +139,10 @@ const Canvas = () => {
 
     useEffect(() => {
         const handleMouseUp = (event: MouseEvent) => {
-            if(event.button === 0) {
-                if(tool !== Tool.hand) {
-                    canvasData.drawableElements.push(canvasData.newObject!)
+            if(tool === Tool.hand) {
+                if(event.button === 0) {
+                    canvasData.newObject = null
                 }
-                canvasData.newObject = null
             }
         }
 
