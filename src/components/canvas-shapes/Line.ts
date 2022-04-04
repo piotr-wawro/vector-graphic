@@ -16,6 +16,7 @@ export default class Line implements Drawable, Editable {
         this.end = end
         this.color = color
         this.lineWidth = lineWidth
+        this.pointRef = end;
     }
 
     pinSize(viewport: Viewport): number {

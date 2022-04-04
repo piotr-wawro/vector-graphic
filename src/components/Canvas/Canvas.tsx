@@ -5,7 +5,6 @@ import { selectBrushSize, selectColor, selectTool, Tool } from 'components/toolb
 
 import styles from './Canvas.module.css';
 import Viewport from './Viewprot';
-import Point2D from '../canvas-shapes/Point2D';
 import Editable from 'components/canvas-shapes/Editable';
 import Drawable from 'components/canvas-shapes/Drawable';
 import Line from 'components/canvas-shapes/Line';
@@ -13,12 +12,9 @@ import Rectangle from 'components/canvas-shapes/Rectangle';
 import Ellipse from 'components/canvas-shapes/Ellipse';
 
 interface CanvasData {
-    mousePointStart: Point2D;
-    mousePointEnd: Point2D;
     newObject: Drawable & Editable | null;
-    refToEditedObject: Editable | null;
     viewport: Viewport | null;
-    drawableElements: Array<Editable | Drawable>;
+    drawableElements: Array<Editable & Drawable>;
 }
 
 const Canvas = () => {
@@ -30,10 +26,7 @@ const Canvas = () => {
     const tool = useAppSelector(selectTool);
 
     const [canvasData, setCanvasData] = useState<CanvasData>({
-        mousePointStart: {x: null, y: null},
-        mousePointEnd: {x: null, y: null},
         newObject: null,
-        refToEditedObject: null,
         viewport: null,
         drawableElements: [],
     })
@@ -83,31 +76,26 @@ const Canvas = () => {
 
     useEffect(() => {
         const handleMouseDown = (event: MouseEvent) => {
-            if(event.button == 0) {
-                if(tool === Tool.line) {
-                    canvasData.mousePointStart = canvasData.viewport!.getMousePosition(event)
-                    canvasData.mousePointEnd = canvasData.viewport!.getMousePosition(event)
-                    canvasData.newObject = new Line(canvasData.mousePointStart, canvasData.mousePointEnd, color, brushSize)
-                }
-                else if(tool === Tool.hand) {
+            let mousePositionStart = canvasData.viewport!.getMousePosition(event)
+            let mousePositionEnd = canvasData.viewport!.getMousePosition(event)
+
+            if(event.button === 0) {
+                if(tool === Tool.hand) {
                     for(let e of canvasData.drawableElements) {
-                        if(isEditable(e)) {
-                            if(e.isMouseOnPin(canvasData.viewport!, event)) {
-                                canvasData.refToEditedObject = e
-                                break
-                            }
+                        if(e.isMouseOnPin(canvasData.viewport!, event)) {
+                            canvasData.newObject = e
+                            break
                         }
                     };
                 }
+                else if(tool === Tool.line) {
+                    canvasData.newObject = new Line(mousePositionStart, mousePositionEnd, color, brushSize)
+                }
                 else if(tool === Tool.rectangle) {
-                    canvasData.mousePointStart = canvasData.viewport!.getMousePosition(event)
-                    canvasData.mousePointEnd = canvasData.viewport!.getMousePosition(event)
-                    canvasData.newObject = new Rectangle(canvasData.mousePointStart, canvasData.mousePointEnd, color, brushSize)
+                    canvasData.newObject = new Rectangle(mousePositionStart, mousePositionEnd, color, brushSize)
                 }
                 else if(tool === Tool.ellipse) {
-                    canvasData.mousePointStart = canvasData.viewport!.getMousePosition(event)
-                    canvasData.mousePointEnd = canvasData.viewport!.getMousePosition(event)
-                    canvasData.newObject = new Ellipse(canvasData.mousePointStart, canvasData.mousePointEnd, color, brushSize)
+                    canvasData.newObject = new Ellipse(mousePositionStart, mousePositionEnd, color, brushSize)
                 }
             }
         }
@@ -118,23 +106,10 @@ const Canvas = () => {
 
     useEffect(() => {
         const handleMouseMove = (event: MouseEvent) => {
-            if(event.buttons == 1) {
-                canvasData.mousePointEnd = canvasData.viewport!.getMousePosition(event)
-
-                if(tool == Tool.line) {
-                    canvasData.newObject = new Line(canvasData.mousePointStart, canvasData.mousePointEnd, color, brushSize)
-                }
-                if(tool == Tool.hand) {
-                    canvasData.refToEditedObject?.edit(canvasData.viewport!, event)
-                }
-                if(tool == Tool.rectangle) {
-                    canvasData.newObject?.edit(canvasData.viewport!, event)
-                }
-                if(tool == Tool.ellipse) {
-                    canvasData.newObject?.edit(canvasData.viewport!, event)
-                }
+            if(event.buttons === 1) {
+                canvasData.newObject?.edit(canvasData.viewport!, event)
             }
-            if(event.buttons == 2) {
+            if(event.buttons === 2) {
                 canvasData.viewport!.dragViewport(event)
             }
         }
@@ -145,25 +120,11 @@ const Canvas = () => {
 
     useEffect(() => {
         const handleMouseUp = (event: MouseEvent) => {
-            if(event.button == 0) {
-                canvasData.mousePointStart = {x: null, y: null}
-                canvasData.mousePointEnd = {x: null, y: null}
-
-                if(tool == Tool.line) {
+            if(event.button === 0) {
+                if(tool !== Tool.hand) {
                     canvasData.drawableElements.push(canvasData.newObject!)
-                    canvasData.newObject = null
                 }
-                if(tool == Tool.hand) {
-                    canvasData.refToEditedObject = null
-                }
-                if(tool == Tool.rectangle) {
-                    canvasData.drawableElements.push(canvasData.newObject!)
-                    canvasData.newObject = null
-                }
-                if(tool == Tool.ellipse) {
-                    canvasData.drawableElements.push(canvasData.newObject!)
-                    canvasData.newObject = null
-                }
+                canvasData.newObject = null
             }
         }
 
