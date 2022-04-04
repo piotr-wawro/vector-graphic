@@ -16,6 +16,7 @@ import styles from './Toolbox.module.css'
 
 import line from 'icons/line.png'
 import hand from 'icons/hand.png'
+import rectangle from 'icons/rectangle.png'
 import RGBtoHSV from 'components/colorConversion/RGBtoHSV';
 
 const Toolbox = () => {
@@ -28,6 +29,7 @@ const Toolbox = () => {
     const toolsIcons = {
         [Tool.line]: line,
         [Tool.hand]: hand,
+        [Tool.rectangle]: rectangle,
     }
 
     const handleOnChangeComplete = (newColor: ColorResult) => {

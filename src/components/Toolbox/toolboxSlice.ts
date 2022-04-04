@@ -4,6 +4,7 @@ import { RootState } from 'app/store';
 export enum Tool {
     line,
     hand,
+    rectangle,
 }
 
 export interface ToolboxState {
@@ -22,13 +23,13 @@ export const toolboxSlice = createSlice({
     name: 'toolbox',
     initialState,
     reducers: {
-        setColor: (state, action: PayloadAction<string>) => {
+        setColor: (state: ToolboxState, action: PayloadAction<string>) => {
             state.color = action.payload;
         },
-        setBrushSzie: (state, action: PayloadAction<number>) => {
+        setBrushSzie: (state: ToolboxState, action: PayloadAction<number>) => {
             state.brushSize = action.payload;
         },
-        setTool: (state, action: PayloadAction<Tool>) => {
+        setTool: (state: ToolboxState, action: PayloadAction<Tool>) => {
             state.tool = action.payload
         },
     }
