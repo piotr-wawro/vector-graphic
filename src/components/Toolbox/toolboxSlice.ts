@@ -5,6 +5,7 @@ export enum Tool {
     line,
     hand,
     rectangle,
+    ellipse,
 }
 
 export interface ToolboxState {

@@ -10,6 +10,7 @@ import Editable from 'components/canvas-shapes/Editable';
 import Drawable from 'components/canvas-shapes/Drawable';
 import Line from 'components/canvas-shapes/Line';
 import Rectangle from 'components/canvas-shapes/Rectangle';
+import Ellipse from 'components/canvas-shapes/Ellipse';
 
 interface CanvasData {
     mousePointStart: Point2D;
@@ -103,6 +104,11 @@ const Canvas = () => {
                     canvasData.mousePointEnd = canvasData.viewport!.getMousePosition(event)
                     canvasData.newObject = new Rectangle(canvasData.mousePointStart, canvasData.mousePointEnd, color, brushSize)
                 }
+                else if(tool === Tool.ellipse) {
+                    canvasData.mousePointStart = canvasData.viewport!.getMousePosition(event)
+                    canvasData.mousePointEnd = canvasData.viewport!.getMousePosition(event)
+                    canvasData.newObject = new Ellipse(canvasData.mousePointStart, canvasData.mousePointEnd, color, brushSize)
+                }
             }
         }
 
@@ -122,6 +128,9 @@ const Canvas = () => {
                     canvasData.refToEditedObject?.edit(canvasData.viewport!, event)
                 }
                 if(tool == Tool.rectangle) {
+                    canvasData.newObject?.edit(canvasData.viewport!, event)
+                }
+                if(tool == Tool.ellipse) {
                     canvasData.newObject?.edit(canvasData.viewport!, event)
                 }
             }
@@ -148,6 +157,10 @@ const Canvas = () => {
                     canvasData.refToEditedObject = null
                 }
                 if(tool == Tool.rectangle) {
+                    canvasData.drawableElements.push(canvasData.newObject!)
+                    canvasData.newObject = null
+                }
+                if(tool == Tool.ellipse) {
                     canvasData.drawableElements.push(canvasData.newObject!)
                     canvasData.newObject = null
                 }
