@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/vector-graphic/static/css/main.298077ef.css",
+    "main.js": "/vector-graphic/static/js/main.2569a9bc.js",
+    "static/media/polygon.png": "/vector-graphic/static/media/polygon.ec2ed484b522829261ac.png",
+    "static/media/line.png": "/vector-graphic/static/media/line.b594dbbcd8e40ce4b776.png",
+    "static/media/hand.png": "/vector-graphic/static/media/hand.c79923d4e2c9dca6d388.png",
+    "index.html": "/vector-graphic/index.html",
+    "main.298077ef.css.map": "/vector-graphic/static/css/main.298077ef.css.map",
+    "main.2569a9bc.js.map": "/vector-graphic/static/js/main.2569a9bc.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.298077ef.css",
+    "static/js/main.2569a9bc.js"
+  ]
+}
