@@ -191,7 +191,9 @@ const Canvas = () => {
     }, [])
 
     return (
-        <canvas id={styles.canvas} ref={canvas}/>
+        <div id={styles.canvasContainer}>
+            <canvas id={styles.canvas} ref={canvas}/>
+        </div>
     )
 }
 
